@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyntaxSensei | Login</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Your provided CSS goes here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #252a3d 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container img {
+            width: 210px;
+            height: auto;
+            object-fit: contain;
+        }
+
+
+        .app-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-title h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .app-title p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+
+        .auth-card {
+            background: rgba(15, 20, 25, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #2d5587;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a5f;
+        }
+
+        .btn-google {
+            background: rgba(219, 68, 55, 0.9);
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .btn-google:hover {
+            background: rgba(193, 56, 43, 0.9);
+        }
+
+        .btn-facebook {
+            background: rgba(66, 103, 178, 0.9);
+            color: white;
+        }
+
+        .btn-facebook:hover {
+            background: rgba(56, 88, 152, 0.9);
+        }
+
+        .social-login {
+            margin-top: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .divider::before {
+            margin-right: 10px;
+        }
+
+        .divider::after {
+            margin-left: 10px;
+        }
+
+        .form-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .form-footer a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .info-message {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 20px;
+            }
+            
+            .app-title h1 {
+                font-size: 24px;
+            }
+            
+            .app-title p {
+                font-size: 14px;
+            }
+        }
+
+        .api-status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .api-status.connecting {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+        }
+
+        .api-status.connected {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+        }
+
+        .api-status.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        /* Additional styles */
+        .hidden {
+            display: none;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-title">
+            <h1>Welcome to SyntaxSensei</h1>
+            <div class="logo-container">
+                <img src="/photos/logo-login.png" alt="Logo">
+            </div>
+            <p>Your personalized Java learning assistant</p>
+        </div>
+        
+        <div class="auth-card">
+            <div class="success-message" id="successMessage">Registration successful! Please check your email to verify your account.</div>
+            <div class="info-message" id="infoMessage">Password reset email sent. Please check your inbox.</div>
+            <div class="error-message" id="errorMessage">An error occurred. Please try again.</div>
+            <div class="api-status" id="apiStatus"></div>
+            
+            <div id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-container">
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-container password-container">
+                        <input type="password" id="password" class="form-control" placeholder="Enter your password">
+                        <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="loginBtn">Sign In</button>
+                
+                <div class="divider">OR CONTINUE WITH</div>
+                
+                <div class="social-login">
+                    <button class="btn btn-google" id="googleLogin">
+                        <i class="fab fa-google"></i> Sign in with Google
+                    </button>
+                    <button class="btn btn-facebook" id="facebookLogin">
+                        <i class="fab fa-facebook-f"></i> Sign in with Facebook
+                    </button>
+                </div>
+                
+                <div class="form-footer">
+                    <p>New to SyntaxSensei? <a href="#" id="showRegister">Create an account</a></p>
+                    <p><a href="#" id="forgotPassword">Forgot your password?</a></p>
+                </div>
+            </div>
+            
+            <div id="registerForm" class="hidden">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <div class="input-container">
+                        <input type="text" id="fullName" class="form-control" placeholder="Enter your full name">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="regEmail">Email Address</label>
+                    <div class="input-container">
+                        <input type="email" id="regEmail" class="form-control" placeholder="Enter your email">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <div class="input-container password-container">
+                        <input type="password" id="regPassword" class="form-control" placeholder="Create a password">
+                        <i class="fas fa-eye password-toggle" id="toggleRegPassword"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-container password-container">
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password">
+                        <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="registerBtn">Create Account</button>
+                
+                <div class="divider">OR SIGN UP WITH</div>
+                
+                <div class="social-login">
+                    <button class="btn btn-google" id="googleRegister">
+                        <i class="fab fa-google"></i> Sign up with Google
+                    </button>
+                    <button class="btn btn-facebook" id="facebookRegister">
+                        <i class="fab fa-facebook-f"></i> Sign up with Facebook
+                    </button>
+                </div>
+                
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" id="showLogin">Sign in</a></p>
+                </div>
+            </div>
+            
+            <div id="resetPasswordForm" class="hidden">
+                <div class="form-group">
+                    <label for="resetEmail">Email Address</label>
+                    <div class="input-container">
+                        <input type="email" id="resetEmail" class="form-control" placeholder="Enter your email">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="resetBtn">Reset Password</button>
+                
+                <div class="form-footer">
+                    <p><a href="#" id="backToLogin">Back to login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <h1>Download My Text File</h1>
+  <a href="sample.zip" download="sample.zip">Click here to download the text file</a>
+    </div>
+
+    <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzxnGO6zNDAVDMJ7VhCvNzzaSa36RJ5t4",
+        authDomain: "syntaxsensei-99777.firebaseapp.com",
+        projectId: "syntaxsensei-99777",
+        storageBucket: "syntaxsensei-99777.appspot.com",
+        messagingSenderId: "725585370674",
+        appId: "1:725585370674:web:c340a8a5606baece47262b",
+        measurementId: "G-C4F75CDNYV"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // DOM Elements
+    const elements = {
+        forms: {
+            login: document.getElementById('loginForm'),
+            register: document.getElementById('registerForm'),
+            resetPassword: document.getElementById('resetPasswordForm')
+        },
+        links: {
+            showRegister: document.getElementById('showRegister'),
+            showLogin: document.getElementById('showLogin'),
+            forgotPassword: document.getElementById('forgotPassword'),
+            backToLogin: document.getElementById('backToLogin')
+        },
+        buttons: {
+            login: document.getElementById('loginBtn'),
+            register: document.getElementById('registerBtn'),
+            reset: document.getElementById('resetBtn'),
+            googleLogin: document.getElementById('googleLogin'),
+            facebookLogin: document.getElementById('facebookLogin'),
+            googleRegister: document.getElementById('googleRegister'),
+            facebookRegister: document.getElementById('facebookRegister')
+        },
+        messages: {
+            error: document.getElementById('errorMessage'),
+            success: document.getElementById('successMessage'),
+            info: document.getElementById('infoMessage')
+        },
+        status: document.getElementById('apiStatus')
+    };
+
+    // Utility Functions
+    const utils = {
+        togglePasswordVisibility(inputId, icon) {
+            const passwordInput = document.getElementById(inputId);
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        },
+        
+        showMessage(type, message) {
+            // Hide all messages first
+            Object.values(elements.messages).forEach(msg => {
+                msg.style.display = 'none';
+            });
+            
+            if (elements.messages[type]) {
+                elements.messages[type].textContent = message;
+                elements.messages[type].style.display = 'block';
+            }
+        },
+        
+        showForm(formToShow) {
+            // Hide all forms first
+            Object.values(elements.forms).forEach(form => {
+                form.classList.add('hidden');
+            });
+            
+            if (elements.forms[formToShow]) {
+                elements.forms[formToShow].classList.remove('hidden');
+            }
+        },
+        
+        clearForm(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.reset();
+            }
+        }
+    };
+
+    // Initialize Event Listeners
+    function initEventListeners() {
+        // Password visibility toggles
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            utils.togglePasswordVisibility('password', this);
+        });
+        
+        document.getElementById('toggleRegPassword').addEventListener('click', function() {
+            utils.togglePasswordVisibility('regPassword', this);
+        });
+        
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            utils.togglePasswordVisibility('confirmPassword', this);
+        });
+
+        // Form navigation
+        elements.links.showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            utils.showForm('register');
+        });
+        
+        elements.links.showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            utils.showForm('login');
+        });
+        
+        elements.links.forgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            utils.showForm('resetPassword');
+        });
+        
+        elements.links.backToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            utils.showForm('login');
+        });
+
+        // Social login buttons
+        elements.buttons.googleLogin.addEventListener('click', signInWithGoogle);
+        elements.buttons.facebookLogin.addEventListener('click', signInWithFacebook);
+        elements.buttons.googleRegister.addEventListener('click', signInWithGoogle);
+        elements.buttons.facebookRegister.addEventListener('click', signInWithFacebook);
+    }
+
+    // Authentication Functions
+    async function signInWithProvider(provider) {
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+            const result = await auth.signInWithPopup(provider);
+            window.location.href = 'dashboard.html';
+        } catch (error) {
+            utils.showMessage('error', 'Sign-in failed. Please try again.');
+        }
+    }
+
+    function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        return signInWithProvider(provider);
+    }
+
+    function signInWithFacebook() {
+        const provider = new firebase.auth.FacebookAuthProvider();
+        return signInWithProvider(provider);
+    }
+
+    // Form Handlers
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if (!email || !password) {
+            utils.showMessage('error', 'Please fill in all fields');
+            return;
+        }
+        
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            window.location.href = 'dashboard.html';
+        } catch (error) {
+            let message = 'Invalid credentials. Please try again.';
+            
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    message = 'No account found with this email.';
+                    break;
+                case 'auth/wrong-password':
+                    message = 'Incorrect password.';
+                    break;
+                case 'auth/too-many-requests':
+                    message = 'Too many failed attempts. Please try again later.';
+                    break;
+                case 'auth/invalid-email':
+                    message = 'Please enter a valid email address.';
+                    break;
+            }
+            
+            utils.showMessage('error', message);
+        }
+    }
+
+    async function handleRegistration() {
+        const name = document.getElementById('fullName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (!name || !email || !password || !confirmPassword) {
+            utils.showMessage('error', 'Please fill in all fields');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            utils.showMessage('error', 'Passwords do not match');
+            return;
+        }
+        
+        if (password.length < 6) {
+            utils.showMessage('error', 'Password should be at least 6 characters');
+            return;
+        }
+        
+        try {
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            
+            await user.updateProfile({ displayName: name });
+            await user.sendEmailVerification();
+            
+            utils.showMessage('success', 'Registration successful! Please check your email to verify your account.');
+            utils.clearForm('registerForm');
+            
+            setTimeout(() => utils.showForm('login'), 3000);
+        } catch (error) {
+            let message = 'Registration failed. Please try again.';
+            
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    message = 'Email is already in use.';
+                    break;
+                case 'auth/invalid-email':
+                    message = 'Please enter a valid email address.';
+                    break;
+                case 'auth/weak-password':
+                    message = 'Password is too weak.';
+                    break;
+            }
+            
+            utils.showMessage('error', message);
+        }
+    }
+
+    async function handlePasswordReset() {
+        const email = document.getElementById('resetEmail').value;
+        
+        if (!email) {
+            utils.showMessage('error', 'Please enter your email');
+            return;
+        }
+        
+        try {
+            await auth.sendPasswordResetEmail(email);
+            utils.showMessage('info', 'Password reset email sent. Please check your inbox.');
+            utils.clearForm('resetPasswordForm');
+        } catch (error) {
+            let message = 'Password reset failed. Please try again.';
+            
+            if (error.code === 'auth/user-not-found') {
+                message = 'No account found with this email.';
+            }
+            
+            utils.showMessage('error', message);
+        }
+    }
+
+    // Auth State Management
+    function handleAuthState(user) {
+        if (user) {
+            if (window.location.pathname === '/index.html' || window.location.pathname === '/') {
+                window.location.href = 'dashboard.html';
+            }
+        } else {
+            elements.status.className = "api-status connected";
+            elements.status.style.display = "none";
+        }
+    }
+
+    // Initialize the application
+    function init() {
+        // Set auth persistence
+        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+            .catch((error) => {
+                console.error("Error setting auth persistence:", error);
+            });
+
+        // Initialize event listeners
+        initEventListeners();
+
+        // Set up form handlers
+        elements.buttons.login.addEventListener('click', handleLogin);
+        elements.buttons.register.addEventListener('click', handleRegistration);
+        elements.buttons.reset.addEventListener('click', handlePasswordReset);
+
+        // Set up auth state listener
+        auth.onAuthStateChanged(handleAuthState);
+
+        // Handle redirect results
+        auth.getRedirectResult()
+            .then((result) => {
+                if (result.user) {
+                    window.location.href = 'dashboard.html';
+                }
+            })
+            .catch((error) => {
+                utils.showMessage('error', 'Sign-in failed. Please try again.');
+            });
+    }
+
+    // Start the application
+    init();
+</script>
+</body>
+</html>

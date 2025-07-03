@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyntaxSensei Dashboard</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 600;
+            gap: 10px;
+            color: #4a90e2;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2d5587;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(192, 57, 43, 0.9);
+        }
+        
+        .dashboard-content {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .dashboard-title {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(15, 20, 25, 0.7);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #4a90e2;
+        }
+        
+        .feature-title {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-desc {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                <span>SyntaxSensei</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="avatar">U</div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            <h1 class="dashboard-title">Welcome to Your Learning Dashboard</h1>
+            <p class="dashboard-subtitle">Start your journey to mastering Java syntax with our personalized learning tools and resources.</p>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3 class="feature-title">Code Editor</h3>
+                    <p class="feature-desc">Practice Java with our intelligent editor that provides real-time feedback and suggestions.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Analysis</h3>
+                    <p class="feature-desc">Get personalized syntax recommendations and explanations tailored to your learning style.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="feature-title">Learning Path</h3>
+                    <p class="feature-desc">Follow our structured curriculum designed to help you master Java concepts step by step.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    
+    <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzxnGO6zNDAVDMJ7VhCvNzzaSa36RJ5t4",
+        authDomain: "syntaxsensei-99777.firebaseapp.com",
+        projectId: "syntaxsensei-99777",
+        storageBucket: "syntaxsensei-99777.appspot.com",
+        messagingSenderId: "725585370674",
+        appId: "1:725585370674:web:c340a8a5606baece47262b",
+        measurementId: "G-C4F75CDNYV"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    
+    // DOM Elements
+    const logoutBtn = document.getElementById('logoutBtn');
+    const avatar = document.getElementById('avatar');
+    
+    // Check authentication state
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            // Redirect to login if not authenticated
+            window.location.href = 'index.html';
+        } else {
+            // Update user avatar with first letter of display name or email
+            let displayChar = 'U'; // Default
+            if (user.displayName) {
+                displayChar = user.displayName.charAt(0).toUpperCase();
+            } else if (user.email) {
+                displayChar = user.email.charAt(0).toUpperCase();
+            }
+            avatar.textContent = displayChar;
+        }
+    });
+    
+    // Logout functionality
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await auth.signOut();
+            // Clear any session data
+            window.sessionStorage.clear();
+            // Redirect to login page
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Fallback redirect if logout fails
+            window.location.href = 'index.html';
+        }
+    });
+    </script>
+</body>
+</html>
